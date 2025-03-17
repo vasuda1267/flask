@@ -76,6 +76,7 @@ def api_route():
 
 @app.route('/api/grade-submission', methods=['POST'])
 def grade_submission():
+    # Vulnerability: No CSRF protection (intentionally added for testing)
     data = request.get_json()
     submission = Submission.query.get(data['submissionId'])
     if submission:
@@ -304,8 +305,10 @@ if __name__ == '__main__':
         db.create_all()
         default_teacher = User.query.filter_by(username='john.smith').first()
         if not default_teacher:
-            # Use environment variable for password, fallback to a default for development
-            default_password = os.getenv('DEFAULT_TEACHER_PASSWORD', 'teacher123')  # Secure default
+            default_teacher = User(username='john.smith', password='teacher123', role='teacher')
+            db.session.add(default_teacher)
+            db.session.commit()
+            print("Default teacher created - username: john.smith, password: teacher123")
             default_teacher = User(username='john.smith', password=default_password, role='teacher')
             db.session.add(default_teacher)
             db.session.commit()
