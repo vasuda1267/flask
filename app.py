@@ -304,10 +304,12 @@ if __name__ == '__main__':
         db.create_all()
         default_teacher = User.query.filter_by(username='john.smith').first()
         if not default_teacher:
-            default_teacher = User(username='john.smith', password='teacher123', role='teacher')
+            # Use environment variable for password, fallback to a default for development
+            default_password = os.getenv('DEFAULT_TEACHER_PASSWORD', 'teacher123')  # Secure default
+            default_teacher = User(username='john.smith', password=default_password, role='teacher')
             db.session.add(default_teacher)
             db.session.commit()
-            print("Default teacher created - username: john.smith, password: teacher123")
+            print(f"Default teacher created - username: john.smith, password: {default_password}")
             sample_courses = [
                 Course(title='Web Security Basics', description='Learn about XSS, CSRF, and SQL Injection', teacher_id=default_teacher.id),
                 Course(title='Network Security', description='Understanding network protocols and security measures', teacher_id=default_teacher.id),
